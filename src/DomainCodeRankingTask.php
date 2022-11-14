@@ -4,24 +4,23 @@ namespace wikipedia_log_analysis;
 
 class DomainCodeRankingTask
 {
-    public function __construct()
-    {
-        $selectedDomainCodes = $this->getSqlArg();
-        $sql
-    }
-
     public function getSqlArg(): array
     {
-        echo '表示するドメインコードをスペースで区切りで入力してください(例: de ja fr)' . PHP_EOL;
-        $inputValue = trim(fgets(STDIN));
-        $inputDomainCodeArray = explode(' ', $inputValue);
-        foreach ($inputDomainCodeArray as $domainCode) {
-            if (filter_var($domainCode, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-                $selectedDomainCodes[] = $domainCode;
-            } else {
-                var_dump($domainCode);
-                echo 'ドメインコードの入力に誤りがあります。' . PHP_EOL;
-                $this->getSqlArg();
+        $isInputError = true;
+        while ($isInputError) {
+            $inputError = false;
+            echo '表示するドメインコードをスペースで区切りで入力してください(例: de ja fr)' . PHP_EOL;
+            $inputValue = trim(fgets(STDIN));
+            $inputDomainCodeArray = explode(' ', $inputValue);
+
+            foreach ($inputDomainCodeArray as $domainCode) {
+                if (filter_var($domainCode, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+                    $selectedDomainCodes[] = $domainCode;
+                } else {
+                    echo 'ドメインコードの入力形式に誤りがあります。' . PHP_EOL;
+                    $isInputError = true;
+                    break;
+                }
             }
         }
 
