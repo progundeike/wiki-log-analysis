@@ -2,42 +2,62 @@
 
 namespace wikipedia_log_analysis;
 
+use PDO;
+use PDOException;
+
 class SetupDB
 {
-    // TODO: 環境変数から取得する
-    private const DB_NAME = 'database';
     private const DB_HOST = 'db';
-    private const USER = 'user';
-    private const DB_PASSWORD = 'pass';
-    private const LOG_FILE_NAME = 'pageviews';
+    private const LOG_FILE_NAME = 'page_views';
     public $dbh;
+    public $dbUser;
+    public $dbPassword;
+    public $dbName;
 
+    /**
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * 環境変数からDB接続情報を取得
+     */
     public function __construct()
     {
-        $this->dbh =  $this->connectDB(self::DB_NAME, self::DB_HOST, self::USER, self::DB_PASSWORD);
+        $this->dbUser = $_ENV['MYSQL_USER'];
+        $this->dbPassword = $_ENV['MYSQL_PASSWORD'];
+        $this->dbName = $_ENV['MYSQL_DATABASE'];
+
+        $this->dbh = $this->connectDB();
         $this->askImportDB();
     }
 
+    /**
+     *
+     *
+     * @return PDO
+     */
     public function connectDB()
     {
         $dsn = "mysql:host=" . self::DB_HOST .
-            ";dbname=" . self::DB_NAME .
+            ";dbname=" . $this->dbName .
             ";charset=utf8mb4";
 
         try {
-            $dbh = new \PDO(
+            $dbh = new PDO(
                 $dsn,
-                self::USER,
-                self::DB_PASSWORD,
-                array(\PDO::MYSQL_ATTR_LOCAL_INFILE => 1)
+                $this->dbUser,
+                $this->dbPassword,
+                array(PDO::MYSQL_ATTR_LOCAL_INFILE => 1)
             );
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             exit('接続に失敗しました。' . $e->getMessage() . PHP_EOL);
         }
 
         return $dbh;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
     public function askImportDB(): void
     {
         while (true) {
@@ -55,27 +75,37 @@ class SetupDB
         }
     }
 
-    function importLogFile()
+    /**
+     * ログファイルをインポートする。失敗した場合は、プログラムを終了する。
+     *
+     * @return void
+     */
+    private function importLogFile()
     {
         echo 'ファイルをデータベースにインポート中です。' . PHP_EOL;
         $logFileName = self::LOG_FILE_NAME;
 
         $sql = <<<SQL
-        LOAD DATA LOCAL INFILE '/app/wikipedia_log_data/${logFileName}'
+        LOAD DATA LOCAL INFILE '/app/wikipedia_log_data/{$logFileName}'
         INTO TABLE page_views
         FIELDS TERMINATED BY ' '
         SQL;
 
         try {
             $this->dbh->query($sql);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             exit('インポートに失敗しました。' . $e);
         }
 
         echo 'インポートが完了しました。' . PHP_EOL;
     }
 
-    function initializeTable()
+    /**
+     * Undocumented function
+     *
+     * @return void
+     */
+    private function initializeTable()
     {
         $sql = <<<SQL
         DROP TABLE IF EXISTS page_views;
@@ -89,8 +119,8 @@ class SetupDB
         SQL;
 
         try {
-            $this->dbh->query($sql);
-        } catch (\PDOException $e) {
+            $this->dbh->exec($sql);
+        } catch (PDOException $e) {
             exit('テーブルの初期化に失敗しました' . $e);
         }
     }

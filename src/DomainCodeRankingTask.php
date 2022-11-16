@@ -2,20 +2,26 @@
 
 namespace wikipedia_log_analysis;
 
-class DomainCodeRankingTask
+require_once(__DIR__ . '/Task.php');
+
+use PDO;
+use PDOStatement;
+
+class DomainCodeRankingTask implements Task
 {
-    public function getSqlArg(): array
+    public function getSqlArg(): string
     {
         $isInputError = true;
         while ($isInputError) {
-            $inputError = false;
-            echo '表示するドメインコードをスペースで区切りで入力してください(例: de ja fr)' . PHP_EOL;
+            $isInputError = false;
+            echo '表示するドメインコードをスペース区切りで入力してください(例: de ja fr)' . PHP_EOL;
             $inputValue = trim(fgets(STDIN));
             $inputDomainCodeArray = explode(' ', $inputValue);
 
+            $domainCodesArray = [];
             foreach ($inputDomainCodeArray as $domainCode) {
                 if (filter_var($domainCode, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-                    $selectedDomainCodes[] = $domainCode;
+                    $domainCodesArray[] = $domainCode;
                 } else {
                     echo 'ドメインコードの入力形式に誤りがあります。' . PHP_EOL;
                     $isInputError = true;
@@ -24,12 +30,14 @@ class DomainCodeRankingTask
             }
         }
 
+        $selectedDomainCodes = implode("', '", $domainCodesArray);
+
         return $selectedDomainCodes;
     }
 
-    public function makeSql(array $selectedDomainCodes): string
+    public function makeStmt(PDO $dbh): PDOStatement
     {
-        $selectedDomainCodeStrings = implode("', '", $selectedDomainCodes);
+        $selectedDomainCodes = $this->getSqlArg();
 
         $sql = <<<SQL
         SELECT
@@ -38,11 +46,14 @@ class DomainCodeRankingTask
         FROM
             page_views
         WHERE
-            domain_code IN ('${selectedDomainCodeStrings}')
+            domain_code IN (:domainCodes)
         GROUP BY domain_code
         ORDER BY total_views DESC
         SQL;
 
-        return $sql;
+        $stmt = $dbh->prepare($sql);
+        $stmt->execute(['domainCodes' => $selectedDomainCodes]);
+
+        return $stmt;
     }
 }

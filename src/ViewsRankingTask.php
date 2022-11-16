@@ -2,10 +2,14 @@
 
 namespace wikipedia_log_analysis;
 
-class ViewsRankingTask
-{
+use PDO;
+use PDOStatement;
 
-    public function getSqlArg(): int
+require_once(__DIR__ . '/Task.php');
+
+class ViewsRankingTask implements Task
+{
+    public function getSqlArg(): string
     {
         $numberOfArticles = false;
         while (!$numberOfArticles) {
@@ -18,24 +22,30 @@ class ViewsRankingTask
             }
         }
 
-        return $numberOfArticles;
+        return (string) $numberOfArticles;
     }
 
-    public function makeSql(int $numberOfArticles): string
+    public function makeStmt(PDO $dbh): PDOStatement
     {
-        $sql =  <<<SQL
-        SELECT
-            domain_code,
-            page_title,
-            count_views
-        FROM
-            page_views
-        ORDER BY
-            count_views DESC
-        LIMIT
-            $numberOfArticles
-        SQL;
+        $numberOfArticles = $this->getSqlArg();
+        $sql = <<<SQL
+            SELECT
+                domain_code,
+                page_title,
+                count_views
+            FROM
+                page_views
+            ORDER BY
+                count_views DESC
+            LIMIT
+                :test
+            SQL;
 
-        return $sql;
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindValue(":test", $numberOfArticles);
+        var_dump($stmt);
+        $stmt->execute();
+
+        return $stmt;
     }
 }

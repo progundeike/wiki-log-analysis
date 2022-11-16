@@ -10,6 +10,8 @@ services:
     depends_on:
       - db
     tty: true
+    env_file:
+      - ./docker/db/db-variables.env
 
   db:
     build:
@@ -19,11 +21,8 @@ services:
       - 13306:3306
     volumes:
       - db-volumes:/var/lib/mysql
-    environment:
-      - MYSQL_DATABASE=database
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=pass
-      - MYSQL_ROOT_PASSWORD=pass
+    env_file:
+      - ./docker/db/db-variables.env
 
 volumes:
   db-volumes:
