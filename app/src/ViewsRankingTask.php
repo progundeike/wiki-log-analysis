@@ -9,25 +9,26 @@ require_once(__DIR__ . '/Task.php');
 
 class ViewsRankingTask implements Task
 {
-    public function getSqlArg(): string
+    public function getNumberOfDisplayArticles(): int
     {
-        $numberOfArticles = false;
-        while (!$numberOfArticles) {
+        // $numberOfArticles = 0;
+        while (true) {
             echo '表示する記事数を入力してください(半角数字)' . PHP_EOL;
-            $inputValue = trim(fgets(STDIN));
-            $numberOfArticles = filter_var($inputValue, FILTER_VALIDATE_INT);
-            //バリデーション
+            $input = trim(fgets(STDIN));
+            $numberOfArticles = filter_var($input, FILTER_VALIDATE_INT);
+
             if (!$numberOfArticles) {
                 echo '記事数の入力に誤りがあります。' . PHP_EOL;
+            } else {
+                return (int) $numberOfArticles;
             }
         }
-
-        return (string) $numberOfArticles;
     }
 
-    public function makeStmt(PDO $dbh): PDOStatement
+    public function makeStmt(PDO $pdo): PDOStatement
     {
-        $numberOfArticles = $this->getSqlArg();
+        $placeHolder = $this->getNumberOfDisplayArticles();
+
         $sql = <<<SQL
             SELECT
                 domain_code,
@@ -38,12 +39,11 @@ class ViewsRankingTask implements Task
             ORDER BY
                 count_views DESC
             LIMIT
-                :test
+                :numberOfArticles
             SQL;
 
-        $stmt = $dbh->prepare($sql);
-        $stmt->bindValue(":test", $numberOfArticles);
-        var_dump($stmt);
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(":numberOfArticles", $placeHolder, PDO::PARAM_INT);
         $stmt->execute();
 
         return $stmt;

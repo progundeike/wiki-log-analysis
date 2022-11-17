@@ -12,12 +12,12 @@ use PDOStatement;
 
 class LogAnalyze
 {
-    public PDO $dbh;
+    public PDO $pdo;
 
     public function __construct()
     {
         $setupDB = new SetupDB();
-        $this->dbh = $setupDB->dbh;
+        $this->pdo = $setupDB->pdo;
     }
 
     /**
@@ -30,7 +30,7 @@ class LogAnalyze
         // @phpstan-ignore-next-line
         while (true) {
             $selectedTask = $this->selectTask();
-            $stmt = $selectedTask->makeStmt($this->dbh);
+            $stmt = $selectedTask->makeStmt($this->pdo);
             $this->showResult($stmt);
         }
     }
@@ -54,7 +54,7 @@ class LogAnalyze
             } elseif ($taskNumber === "2") {
                 return new DomainCodeRankingTask();
             } elseif ($taskNumber === "0") {
-                exit;
+                exit('プログラムを終了します' . PHP_EOL);
             } else {
                 echo 'タスクナンバーの入力に誤りがあります。' . PHP_EOL;
             }

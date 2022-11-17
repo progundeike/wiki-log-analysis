@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     volumes:
-      - ./src:/app
+      - ./app:/app
     depends_on:
       - db
     tty: true

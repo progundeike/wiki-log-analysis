@@ -2,6 +2,8 @@
 
 namespace wikipedia_log_analysis;
 
+require_once(__DIR__ . '/LogAnalyze.php');
+
 use PDO;
 use PDOException;
 
@@ -9,7 +11,7 @@ class SetupDB
 {
     private const DB_HOST = 'db';
     private const LOG_FILE_NAME = 'page_views';
-    public $dbh;
+    public $pdo;
     public $dbUser;
     public $dbPassword;
     public $dbName;
@@ -24,12 +26,12 @@ class SetupDB
         $this->dbPassword = $_ENV['MYSQL_PASSWORD'];
         $this->dbName = $_ENV['MYSQL_DATABASE'];
 
-        $this->dbh = $this->connectDB();
+        $this->pdo = $this->connectDB();
         $this->askImportDB();
     }
 
     /**
-     *
+     * DBと接続する。失敗した場合はプログラムを終了する。
      *
      * @return PDO
      */
@@ -40,7 +42,7 @@ class SetupDB
             ";charset=utf8mb4";
 
         try {
-            $dbh = new PDO(
+            $pdo = new PDO(
                 $dsn,
                 $this->dbUser,
                 $this->dbPassword,
@@ -50,11 +52,11 @@ class SetupDB
             exit('接続に失敗しました。' . $e->getMessage() . PHP_EOL);
         }
 
-        return $dbh;
+        return $pdo;
     }
 
     /**
-     * Undocumented function
+     * プログラム開始時に、ログファイルをインポートするかを確認する。
      *
      * @return void
      */
@@ -82,7 +84,7 @@ class SetupDB
      */
     private function importLogFile()
     {
-        echo 'ファイルをデータベースにインポート中です。' . PHP_EOL;
+        echo 'ログファイルをデータベースにインポート中です。' . PHP_EOL;
         $logFileName = self::LOG_FILE_NAME;
 
         $sql = <<<SQL
@@ -92,7 +94,7 @@ class SetupDB
         SQL;
 
         try {
-            $this->dbh->query($sql);
+            $this->pdo->query($sql);
         } catch (PDOException $e) {
             exit('インポートに失敗しました。' . $e);
         }
@@ -101,7 +103,7 @@ class SetupDB
     }
 
     /**
-     * Undocumented function
+     * テーブルを初期化する。失敗した場合はプログラムを終了する。
      *
      * @return void
      */
@@ -119,7 +121,7 @@ class SetupDB
         SQL;
 
         try {
-            $this->dbh->exec($sql);
+            $this->pdo->exec($sql);
         } catch (PDOException $e) {
             exit('テーブルの初期化に失敗しました' . $e);
         }

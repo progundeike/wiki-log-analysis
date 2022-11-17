@@ -9,35 +9,36 @@ use PDOStatement;
 
 class DomainCodeRankingTask implements Task
 {
-    public function getSqlArg(): string
+    public function getDomainCodes(): array
     {
-        $isInputError = true;
-        while ($isInputError) {
+        do {
             $isInputError = false;
             echo '表示するドメインコードをスペース区切りで入力してください(例: de ja fr)' . PHP_EOL;
             $inputValue = trim(fgets(STDIN));
-            $inputDomainCodeArray = explode(' ', $inputValue);
+            $inputValueArray = explode(' ', $inputValue);
 
-            $domainCodesArray = [];
-            foreach ($inputDomainCodeArray as $domainCode) {
+            $domainCodes = [];
+            foreach ($inputValueArray as $domainCode) {
                 if (filter_var($domainCode, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-                    $domainCodesArray[] = $domainCode;
+                    $domainCodes[] = $domainCode;
                 } else {
-                    echo 'ドメインコードの入力形式に誤りがあります。' . PHP_EOL;
                     $isInputError = true;
+                    echo 'ドメインコードの入力形式に誤りがあります。' . PHP_EOL;
                     break;
                 }
             }
-        }
+        } while ($isInputError);
 
-        $selectedDomainCodes = implode("', '", $domainCodesArray);
-
-        return $selectedDomainCodes;
+        return $domainCodes;
     }
 
-    public function makeStmt(PDO $dbh): PDOStatement
+    public function makeStmt(PDO $pdo): PDOStatement
     {
-        $selectedDomainCodes = $this->getSqlArg();
+        $domainCodes = $this->getDomainCodes();
+
+        $holderArray = array_fill(0, count($domainCodes), '?');
+        $placeholder = implode(",", $holderArray);
+        var_dump($placeholder);
 
         $sql = <<<SQL
         SELECT
@@ -46,14 +47,13 @@ class DomainCodeRankingTask implements Task
         FROM
             page_views
         WHERE
-            domain_code IN (:domainCodes)
+            domain_code IN ($placeholder)
         GROUP BY domain_code
         ORDER BY total_views DESC
         SQL;
 
-        $stmt = $dbh->prepare($sql);
-        $stmt->execute(['domainCodes' => $selectedDomainCodes]);
-
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($domainCodes);
         return $stmt;
     }
 }
