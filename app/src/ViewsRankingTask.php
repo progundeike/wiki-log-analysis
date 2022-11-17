@@ -7,8 +7,17 @@ use PDOStatement;
 
 require_once(__DIR__ . '/Task.php');
 
+/**
+ * タスク1: 表示する記事数の入力を受け取り、ビュー数の多い順に、
+ * 「ドメインコード」、「ページタイトル」、「ビュー数」を表示する
+ */
 class ViewsRankingTask implements Task
 {
+    /**
+     * 表示する記事数の入力を受け取る
+     *
+     * @return integer
+     */
     public function getNumberOfDisplayArticles(): int
     {
         // $numberOfArticles = 0;
@@ -16,8 +25,7 @@ class ViewsRankingTask implements Task
             echo '表示する記事数を入力してください(半角数字)' . PHP_EOL;
             $input = trim(fgets(STDIN));
             $numberOfArticles = filter_var($input, FILTER_VALIDATE_INT);
-
-            if (!$numberOfArticles) {
+            if (!$numberOfArticles || $numberOfArticles < 1) {
                 echo '記事数の入力に誤りがあります。' . PHP_EOL;
             } else {
                 return (int) $numberOfArticles;

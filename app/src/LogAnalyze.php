@@ -14,6 +14,9 @@ class LogAnalyze
 {
     public PDO $pdo;
 
+    /**
+     * DBとの接続に使用するインスタンスを生成
+     */
     public function __construct()
     {
         $setupDB = new SetupDB();
@@ -21,11 +24,11 @@ class LogAnalyze
     }
 
     /**
-     * Undocumented function
+     * プログラムを開始して、selectTaskで終了が選択されるまで処理を繰り返す。
      *
      * @return void
      */
-    public function analyzeStart()
+    public function start(): void
     {
         // @phpstan-ignore-next-line
         while (true) {
@@ -75,7 +78,7 @@ class LogAnalyze
             $existsData = true;
         }
         if (!$existsData) {
-            echo '一致するデータがありません。' . PHP_EOL;
+            echo '一致するデータがありません。';
         }
         echo PHP_EOL;
     }

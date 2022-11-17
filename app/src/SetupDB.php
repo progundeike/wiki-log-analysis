@@ -46,7 +46,7 @@ class SetupDB
                 $dsn,
                 $this->dbUser,
                 $this->dbPassword,
-                array(PDO::MYSQL_ATTR_LOCAL_INFILE => 1)
+                [PDO::MYSQL_ATTR_LOCAL_INFILE => 1]
             );
         } catch (PDOException $e) {
             exit('接続に失敗しました。' . $e->getMessage() . PHP_EOL);
