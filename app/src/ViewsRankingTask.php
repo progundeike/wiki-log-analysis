@@ -14,13 +14,12 @@ require_once(__DIR__ . '/Task.php');
 class ViewsRankingTask implements Task
 {
     /**
-     * 表示する記事数の入力を受け取る
+     * 表示する記事数の入力を受け取り、入力が自然数か確認する
      *
      * @return integer
      */
     public function getNumberOfDisplayArticles(): int
     {
-        // $numberOfArticles = 0;
         while (true) {
             echo '表示する記事数を入力してください(半角数字)' . PHP_EOL;
             $input = trim(fgets(STDIN));
@@ -33,6 +32,12 @@ class ViewsRankingTask implements Task
         }
     }
 
+    /**
+     * 表示する記事数の入力を関数内部で受け取り、SQL文を組み立ててPDOStatementを返す
+     *
+     * @param PDO $pdo
+     * @return PDOStatement
+     */
     public function makeStmt(PDO $pdo): PDOStatement
     {
         $placeHolder = $this->getNumberOfDisplayArticles();
@@ -46,7 +51,7 @@ class ViewsRankingTask implements Task
                 page_views
             ORDER BY
                 count_views DESC
-            LIMIT
+                LIMIT
                 :numberOfArticles
             SQL;
 

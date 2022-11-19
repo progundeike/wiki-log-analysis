@@ -10,7 +10,7 @@ require_once(__DIR__ . '/Task.php');
 use PDO;
 use PDOStatement;
 
-class LogAnalyze
+class Analysis
 {
     public PDO $pdo;
 
