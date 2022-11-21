@@ -9,7 +9,7 @@
   Dockerコンテナの生成、起動
   $ docker compose up -d --build
 
-  解析プログラムの起動
+  解析プログラムの実行
   $ docker compose exec app php wiki_log_analyze.php
 
   プログラムが起動した後は、ガイダンスに従って入力していきます。

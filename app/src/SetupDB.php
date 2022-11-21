@@ -114,7 +114,7 @@ class SetupDB
 
         CREATE TABLE page_views (
             domain_code VARCHAR(255),
-            page_title VARCHAR(500) CHARACTER SET BINARY,
+            page_title VARCHAR(500),
             count_views INTEGER,
             total_response_size INTEGER,
             PRIMARY KEY (domain_code, page_title)
@@ -139,7 +139,7 @@ class SetupDB
         CREATE INDEX
             count_views_index
         ON
-            page_views (count_views);
+            page_views (count_views)
         SQL;
 
         try {
