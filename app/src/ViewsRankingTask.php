@@ -21,9 +21,10 @@ class ViewsRankingTask implements Task
     public function getNumberOfDisplayArticles(): int
     {
         while (true) {
-            echo '表示する記事数を入力してください(半角数字)' . PHP_EOL;
+            echo '表示する記事数を入力してください' . PHP_EOL;
             $input = trim(fgets(STDIN));
-            $numberOfArticles = filter_var($input, FILTER_VALIDATE_INT);
+            $inputToHalfWidth = mb_convert_kana($input, "n");
+            $numberOfArticles = filter_var($inputToHalfWidth, FILTER_VALIDATE_INT);
             if (!$numberOfArticles || $numberOfArticles < 1) {
                 echo '記事数の入力に誤りがあります。' . PHP_EOL;
             } else {

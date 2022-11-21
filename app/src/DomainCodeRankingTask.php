@@ -25,12 +25,14 @@ class DomainCodeRankingTask implements Task
             $isInputError = false;
             // ドメインコードをスペース区切りで受け取り、配列にする
             echo '表示するドメインコードをスペース区切りで入力してください(例: de ja fr)' . PHP_EOL;
-            $inputValue = trim(fgets(STDIN));
-            $inputValueArray = explode(' ', $inputValue);
+            $input = trim(fgets(STDIN));
+            $inputToHalfWidth = mb_convert_kana($input, "r");
+
+            $inputArray = explode(' ', $inputToHalfWidth);
 
             // 配列を順番に回して、入力がドメインの形式か確認する。
             $domainCodes = [];
-            foreach ($inputValueArray as $domainCode) {
+            foreach ($inputArray as $domainCode) {
                 if (filter_var($domainCode, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
                     $domainCodes[] = $domainCode;
                 } else {

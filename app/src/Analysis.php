@@ -47,11 +47,12 @@ class Analysis
     public function selectTask(): Task
     {
         while (true) {
-            echo '解析するタスクナンバーを入力してください。終了するには0を入力してください。(半角数字)' . PHP_EOL;
+            echo '解析するタスクナンバーを入力してください。終了するには0を入力してください' . PHP_EOL;
             echo 'タスク1: 記事数を指定して、閲覧数の多い順に表示します' . PHP_EOL;
             echo 'タスク2: ドメインコードを入力し、閲覧数の多い順に合計閲覧数を表示します' . PHP_EOL;
 
-            $taskNumber = trim(fgets(STDIN));
+            $input = trim(fgets(STDIN));
+            $taskNumber = mb_convert_kana($input, "n");
             if ($taskNumber === "1") {
                 return new ViewsRankingTask();
             } elseif ($taskNumber === "2") {
@@ -59,7 +60,7 @@ class Analysis
             } elseif ($taskNumber === "0") {
                 exit('プログラムを終了します' . PHP_EOL);
             } else {
-                echo 'タスクナンバーの入力に誤りがあります。' . PHP_EOL;
+                echo 'タスクナンバーの入力に誤りがあります' . PHP_EOL;
             }
         }
     }
@@ -78,7 +79,7 @@ class Analysis
             $existsData = true;
         }
         if (!$existsData) {
-            echo '一致するデータがありません。';
+            echo '一致するデータがありません';
         }
         echo PHP_EOL;
     }

@@ -25,7 +25,6 @@ class SetupDB
         $this->dbUser = $_ENV['MYSQL_USER'];
         $this->dbPassword = $_ENV['MYSQL_PASSWORD'];
         $this->dbName = $_ENV['MYSQL_DATABASE'];
-
         $this->pdo = $this->connectDB();
         $this->askImportFile();
     }
@@ -49,7 +48,7 @@ class SetupDB
                 [PDO::MYSQL_ATTR_LOCAL_INFILE => 1]
             );
         } catch (PDOException $e) {
-            exit('接続に失敗しました。' . $e->getMessage() . PHP_EOL);
+            exit('接続に失敗しました' . $e->getMessage() . PHP_EOL);
         }
 
         return $pdo;
@@ -69,12 +68,14 @@ class SetupDB
                 $this->initializeTable();
                 $this->importLogFile();
                 $this->createIndex();
-                echo 'インポートが完了しました。' . PHP_EOL;
+                echo 'インポートが完了しました' . PHP_EOL;
+                echo PHP_EOL;
                 break;
             } elseif ($input === 'n') {
+                $this->checkExistData();
                 break;
             } else {
-                echo '入力が正しくありません。' . PHP_EOL;
+                echo '入力が正しくありません' . PHP_EOL;
             }
         }
     }
@@ -98,7 +99,7 @@ class SetupDB
         try {
             $this->pdo->exec($sql);
         } catch (PDOException $e) {
-            exit('インポートに失敗しました。' . $e);
+            exit('インポートに失敗しました' . $e);
         }
     }
 
@@ -146,6 +147,25 @@ class SetupDB
             $this->pdo->exec($sql);
         } catch (PDOException $e) {
             echo 'テーブルの最適化に失敗しました' . $e;
+        }
+    }
+
+    private function checkExistData(): void
+    {
+        $sql = <<<SQL
+        SELECT
+            *
+        FROM
+            page_views
+        LIMIT
+            1
+        SQL;
+
+        try {
+            $this->pdo->query($sql);
+        } catch (PDOException $e) {
+            echo 'データがインポートされていません' . PHP_EOL;
+            $this->askImportFile();
         }
     }
 }
