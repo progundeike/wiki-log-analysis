@@ -3,7 +3,6 @@
 namespace wikipedia_log_analysis;
 
 use PDO;
-use PDOStatement;
 
 require_once(__DIR__ . '/Task.php');
 

@@ -152,6 +152,12 @@ class SetupDB
         }
     }
 
+    /**
+     * DBにデータがあるかを確認し、無ければインポート
+     * データがある場合は再インポートするか入力させる
+     *
+     * @return void
+     */
     private function checkExistData(): void
     {
         $sql = <<<SQL

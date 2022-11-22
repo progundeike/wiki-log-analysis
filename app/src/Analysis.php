@@ -41,7 +41,6 @@ class Analysis
      * 使用するタスクインスタンスを生成する
      *
      * @return Task
-     * @SuppressWarnings(PHPMD.ExitExpression)
      */
     public function selectTask(): Task
     {
