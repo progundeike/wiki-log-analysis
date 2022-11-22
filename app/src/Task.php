@@ -10,5 +10,5 @@ use PDOStatement;
  */
 interface Task
 {
-    public function makeStmt(PDO $dbh): PDOStatement;
+    public function fetchResult(PDO $pdo): array;
 }

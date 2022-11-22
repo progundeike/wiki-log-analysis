@@ -37,9 +37,9 @@ class ViewsRankingTask implements Task
      * 表示する記事数の入力を関数内部で受け取り、SQL文を組み立ててPDOStatementを返す
      *
      * @param PDO $pdo
-     * @return PDOStatement
+     * @return array
      */
-    public function makeStmt(PDO $pdo): PDOStatement
+    public function fetchResult(PDO $pdo): array
     {
         $placeHolder = $this->getNumberOfDisplayArticles();
 
@@ -59,7 +59,8 @@ class ViewsRankingTask implements Task
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(":numberOfArticles", $placeHolder, PDO::PARAM_INT);
         $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $stmt;
+        return $results;
     }
 }

@@ -51,9 +51,9 @@ class DomainCodeRankingTask implements Task
      * SQL文を組み立ててPDOStatementを返す
      *
      * @param PDO $pdo
-     * @return PDOStatement
+     * @return array
      */
-    public function makeStmt(PDO $pdo): PDOStatement
+    public function fetchResult(PDO $pdo): array
     {
         $domainCodes = $this->getDomainCodes();
 
@@ -74,6 +74,8 @@ class DomainCodeRankingTask implements Task
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($domainCodes);
-        return $stmt;
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $results;
     }
 }

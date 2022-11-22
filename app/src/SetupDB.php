@@ -26,7 +26,7 @@ class SetupDB
         $this->dbPassword = $_ENV['MYSQL_PASSWORD'];
         $this->dbName = $_ENV['MYSQL_DATABASE'];
         $this->pdo = $this->connectDB();
-        $this->askImportFile();
+        $this->checkExistData();
     }
 
     /**
@@ -65,14 +65,9 @@ class SetupDB
             echo "DBをインポートしますか？ 'y' or 'n'" . PHP_EOL;
             $input = trim(fgets(STDIN));
             if ($input === 'y') {
-                $this->initializeTable();
                 $this->importLogFile();
-                $this->createIndex();
-                echo 'インポートが完了しました' . PHP_EOL;
-                echo PHP_EOL;
                 break;
             } elseif ($input === 'n') {
-                $this->checkExistData();
                 break;
             } else {
                 echo '入力が正しくありません' . PHP_EOL;
@@ -88,6 +83,9 @@ class SetupDB
     private function importLogFile(): void
     {
         echo 'ログファイルをデータベースにインポート中です。' . PHP_EOL;
+
+        $this->createTable();
+
         $logFileName = self::LOG_FILE_NAME;
 
         $sql = <<<SQL
@@ -101,6 +99,10 @@ class SetupDB
         } catch (PDOException $e) {
             exit('インポートに失敗しました' . $e);
         }
+
+        $this->createIndex();
+        echo 'インポートが完了しました' . PHP_EOL;
+        echo PHP_EOL;
     }
 
     /**
@@ -108,7 +110,7 @@ class SetupDB
      *
      * @return void
      */
-    private function initializeTable(): void
+    private function createTable(): void
     {
         $sql = <<<SQL
         DROP TABLE IF EXISTS page_views;
@@ -163,9 +165,9 @@ class SetupDB
 
         try {
             $this->pdo->query($sql);
-        } catch (PDOException $e) {
-            echo 'データがインポートされていません' . PHP_EOL;
             $this->askImportFile();
+        } catch (PDOException $e) {
+            $this->importLogFile();
         }
     }
 }

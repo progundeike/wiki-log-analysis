@@ -8,7 +8,6 @@ require_once(__DIR__ . '/SetupDB.php');
 require_once(__DIR__ . '/Task.php');
 
 use PDO;
-use PDOStatement;
 
 class Analysis
 {
@@ -33,8 +32,8 @@ class Analysis
         // @phpstan-ignore-next-line
         while (true) {
             $selectedTask = $this->selectTask();
-            $stmt = $selectedTask->makeStmt($this->pdo);
-            $this->showResult($stmt);
+            $results = $selectedTask->fetchResult($this->pdo);
+            $this->showResult($results);
         }
     }
 
@@ -66,20 +65,20 @@ class Analysis
     }
 
     /**
-     * DBから結果を1行ずつ取得する
+     * DBから取得してきた結果を引数に渡して、結果を表示する
+     * 結果が空の配列の場合はメッセージを表示する
      *
-     * @param PDOStatement $stmt
+     * @param array $results
      * @return void
      */
-    public function showResult(PDOStatement $stmt): void
+    public function showResult(array $results): void
     {
-        $existsData = false;
-        while ($fetchedData = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo  implode(' ', $fetchedData) . PHP_EOL;
-            $existsData = true;
-        }
-        if (!$existsData) {
-            echo '一致するデータがありません';
+        if (count($results) === 0) {
+            echo '一致するデータがありません' . PHP_EOL;
+        } else {
+            foreach ($results as $result) {
+                echo  implode(' ', $result) . PHP_EOL;
+            }
         }
         echo PHP_EOL;
     }
